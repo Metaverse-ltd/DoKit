@@ -109,4 +109,8 @@
 - (NSMutableArray *)kitManagerData;
 - (NSMutableArray *)kitShowManagerData;
 - (NSMutableArray *)allKitShowManagerData;
+
+// API 环境
+- (void)saveENV:(NSInteger)env;
+- (NSInteger)ENV;
 @end

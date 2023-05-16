@@ -135,7 +135,6 @@ iOS各式各样的工具集合
       'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) DoraemonWithMLeaksFinder'
     }
     ss.dependency 'DoraemonKit/Core'
-    ss.dependency 'FBRetainCycleDetector'
   end
 
   s.subspec 'WithMultiControl' do |ss|

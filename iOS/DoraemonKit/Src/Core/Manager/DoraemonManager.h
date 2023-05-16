@@ -14,15 +14,6 @@ typedef void (^DoraemonH5DoorBlock)(NSString *);
 typedef UIImage * _Nullable (^DoraemonWebpHandleBlock)(NSString *filePath);
 
 typedef NS_ENUM(NSUInteger, DoraemonManagerPluginType) {
-    #pragma mark - weex专项工具
-    // 日志
-    DoraemonManagerPluginType_DoraemonWeexLogPlugin,
-    // 缓存
-    DoraemonManagerPluginType_DoraemonWeexStoragePlugin,
-    // 信息
-    DoraemonManagerPluginType_DoraemonWeexInfoPlugin,
-    // DevTool
-    DoraemonManagerPluginType_DoraemonWeexDevToolPlugin,
     #pragma mark - 常用工具
     // App设置
     DoraemonManagerPluginType_DoraemonAppSettingPlugin,
@@ -50,6 +41,8 @@ typedef NS_ENUM(NSUInteger, DoraemonManagerPluginType) {
     DoraemonManagerPluginType_DoraemonNSUserDefaultsPlugin,
     // JS脚本
     DoraemonManagerPluginType_DoraemonJavaScriptPlugin,
+    // ENV
+    DoraemonManagerPluginType_DoraemonENVPlugin,
     
     #pragma mark - 性能检测
     // 帧率监控
@@ -87,13 +80,7 @@ typedef NS_ENUM(NSUInteger, DoraemonManagerPluginType) {
     // 对齐标尺
     DoraemonManagerPluginType_DoraemonViewAlignPlugin,
     // 元素边框线
-    DoraemonManagerPluginType_DoraemonViewMetricsPlugin,
-    
-    #pragma mark - 平台工具
-    // Mock 数据
-    DoraemonManagerPluginType_DoraemonMockPlugin,
-    DoraemonManagerPluginType_DoraemonHealthPlugin,
-    DoraemonManagerPluginType_DoraemonFileSyncPlugin
+    DoraemonManagerPluginType_DoraemonViewMetricsPlugin
 };
 
 @interface DoraemonManagerPluginTypeModel : NSObject
@@ -113,15 +100,11 @@ typedef NS_ENUM(NSUInteger, DoraemonManagerPluginType) {
 
 @property (nonatomic, copy) NSString *appKey __attribute__((deprecated("此属性已被弃用，替换方式请参考最新 https://www.dokit.cn/ 的使用手册")));
 
-@property (nonatomic, copy) NSString *pId; //产品id 平台端的工具必须填写
-
 @property (nonatomic, copy) NSString *mockDomain; //产品mockDomain 非必填 默认mock.dokit.cn
 
 @property (nonatomic, assign) BOOL autoDock; //dokit entry icon support autoDock，deffault yes
 
 - (void)install;
-// 带有平台端功能的s初始化方式
-- (void)installWithPid:(NSString *)pId;
 
 // 自定义平台mockDomain初始化方式
 - (void)installWithMockDomain:(NSString *)mockDomain;

@@ -11,6 +11,7 @@
 @interface DoraemonCellButton()
 
 @property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UILabel *subTitleLabel;
 @property (nonatomic, strong) UILabel *rightLabel;
 @property (nonatomic, strong) UIView *topLine;
 @property (nonatomic, strong) UIView *downLine;
@@ -27,6 +28,12 @@
         _titleLabel.textColor = [UIColor doraemon_black_1];
         _titleLabel.font = [UIFont systemFontOfSize:kDoraemonSizeFrom750_Landscape(32)];
         [self addSubview:_titleLabel];
+        
+        _subTitleLabel = [[UILabel alloc] init];
+        _subTitleLabel.textColor = [UIColor doraemon_black_3];
+        _subTitleLabel.font = [UIFont systemFontOfSize:kDoraemonSizeFrom750_Landscape(20)];
+        _subTitleLabel.hidden = true;
+        [self addSubview:_subTitleLabel];
         
         _topLine = [[UIView alloc] init];
         _topLine.hidden = YES;
@@ -59,6 +66,13 @@
     _titleLabel.text = title;
     [_titleLabel sizeToFit];
     _titleLabel.frame = CGRectMake(20, self.doraemon_height/2-_titleLabel.doraemon_height/2, _titleLabel.doraemon_width, _titleLabel.doraemon_height);
+}
+
+- (void)renderUIWithSubTitle:(NSString *)title {
+    _subTitleLabel.hidden = NO;
+    _subTitleLabel.text = title;
+    [_subTitleLabel sizeToFit];
+    _subTitleLabel.frame = CGRectMake(20, self.titleLabel.doraemon_bottom + 2.0, _subTitleLabel.doraemon_width, _subTitleLabel.doraemon_height);
 }
 
 - (void)renderUIWithRightContent:(NSString *)rightContent{

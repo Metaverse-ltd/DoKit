@@ -32,6 +32,7 @@ static NSString * const kDoraemonMemoryLeakAlertKey = @"doraemon_memory_leak_ale
 static NSString * const kDoraemonAllTestKey = @"doraemon_allTest_window_key";
 static NSString * const kDoraemonMockCacheKey = @"doraemon_mock_cache_key";
 static NSString * const kDoraemonHealthStartKey = @"doraemon_health_start_key";
+static NSString * const kDoraemonAPIEnvKey = @"doraemon_api_env_key";
 #define kDoraemonKitManagerKey [NSString stringWithFormat:@"%@_doraemon_kit_manager_key",DoKitVersion]
 
 @interface DoraemonCacheManager()
@@ -504,6 +505,16 @@ static NSString * const kDoraemonHealthStartKey = @"doraemon_health_start_key";
     }
     
     return mutableDataArray;
+}
+
+// API 环境
+- (void)saveENV:(NSInteger)env {
+    [_defaults setInteger:env forKey:kDoraemonAPIEnvKey];
+    [_defaults synchronize];
+}
+
+- (NSInteger)ENV {
+    return [_defaults integerForKey:kDoraemonAPIEnvKey];
 }
 
 @end

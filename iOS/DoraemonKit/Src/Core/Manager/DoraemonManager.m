@@ -19,10 +19,8 @@
 #import "DoraemonNSLogViewController.h"
 #import "DoraemonNSLogListViewController.h"
 #import "DoraemonHomeWindow.h"
-#import "DoraemonStatisticsUtil.h"
 #import "DoraemonANRManager.h"
 #import "DoraemonLargeImageDetectionManager.h"
-#import "DoraemonMockManager.h"
 #import "DoraemonNetFlowOscillogramWindow.h"
 #import "DoraemonNetFlowManager.h"
 #import "DoraemonHealthManager.h"
@@ -103,11 +101,6 @@ typedef void (^DoraemonPerformanceBlock)(NSDictionary *);
         defaultPosition = DoraemonFullScreenStartingPosition;
     }
     [self installWithStartingPosition:defaultPosition];
-}
-
-- (void)installWithPid:(NSString *)pId{
-    self.pId = pId;
-    [self install];
 }
 
 - (void)installWithMockDomain:(NSString *)mockDomain{
@@ -191,36 +184,16 @@ typedef void (^DoraemonPerformanceBlock)(NSDictionary *);
         [DoraemonLargeImageDetectionManager shareInstance].minimumDetectionSize = _bigImageDetectionSize;
     }
     
-    //统计开源项目使用量 不用于任何恶意行为
-    [[DoraemonStatisticsUtil shareInstance] upLoadUserInfo];
-    
-    //拉取最新的mock数据
-    [[DoraemonMockManager sharedInstance] queryMockData:^(int flag) {
-        DoKitLog(@"mock get data, flag == %i",flag);
-    }];
-    
-    //Weex工具的初始化
-#if DoraemonWithWeex
-    [DoraemonWeexLogDataSource shareInstance];
-    [DoraemonWeexInfoDataManager shareInstance];
-#endif
-    
     //开启健康体检
     if ([[DoraemonCacheManager sharedInstance] healthStart]) {
         [[DoraemonHealthManager sharedInstance] startHealthCheck];
     }
-    
 }
-
 
 /**
  初始化内置工具数据
  */
 - (void)initData{
-    #pragma mark - 平台工具
-    [self addPluginWithPluginType:DoraemonManagerPluginType_DoraemonMockPlugin];
-    [self addPluginWithPluginType:DoraemonManagerPluginType_DoraemonHealthPlugin];
-    [self addPluginWithPluginType:DoraemonManagerPluginType_DoraemonFileSyncPlugin];
     
     #pragma mark - 常用工具
     [self addPluginWithPluginType:DoraemonManagerPluginType_DoraemonAppSettingPlugin];
@@ -243,6 +216,8 @@ typedef void (^DoraemonPerformanceBlock)(NSDictionary *);
     [self addPluginWithPluginType:DoraemonManagerPluginType_DoraemonDatabasePlugin];
 #endif
     [self addPluginWithPluginType:DoraemonManagerPluginType_DoraemonJavaScriptPlugin];
+    
+    [self addPluginWithPluginType:DoraemonManagerPluginType_DoraemonENVPlugin];
     
     #pragma mark - 性能检测
     [self addPluginWithPluginType:DoraemonManagerPluginType_DoraemonFPSPlugin];
@@ -459,38 +434,6 @@ typedef void (^DoraemonPerformanceBlock)(NSDictionary *);
 - (DoraemonManagerPluginTypeModel *)getDefaultPluginDataWithPluginType:(DoraemonManagerPluginType)pluginType
 {
     NSArray *dataArray = @{
-                           @(DoraemonManagerPluginType_DoraemonWeexLogPlugin) : @[
-                                   @{kTitle:DoraemonLocalizedString(@"日志")},
-                                   @{kDesc:@"Weex log"},
-                                   @{kIcon:@"doraemon_log"},
-                                   @{kPluginName:@"DoraemonWeexLogPlugin"},
-                                   @{kAtModule:@"Weex"},
-                                   @{kBuriedPoint:@"dokit_sdk_weex_ck_log"}
-                                   ],
-                           @(DoraemonManagerPluginType_DoraemonWeexStoragePlugin) : @[
-                                   @{kTitle:DoraemonLocalizedString(@"缓存")},
-                                   @{kDesc:@"weex storage"},
-                                   @{kIcon:@"doraemon_file"},
-                                   @{kPluginName:@"DoraemonWeexStoragePlugin"},
-                                   @{kAtModule:@"Weex"},
-                                   @{kBuriedPoint:@"dokit_sdk_weex_ck_storage"}
-                                   ],
-                           @(DoraemonManagerPluginType_DoraemonWeexInfoPlugin) : @[
-                                   @{kTitle:DoraemonLocalizedString(@"信息")},
-                                   @{kDesc:@"weex info"},
-                                   @{kIcon:@"doraemon_app_info"},
-                                   @{kPluginName:@"DoraemonWeexInfoPlugin"},
-                                   @{kAtModule:@"Weex"},
-                                   @{kBuriedPoint:@"dokit_sdk_weex_ck_vessel"}
-                                   ],
-                           @(DoraemonManagerPluginType_DoraemonWeexDevToolPlugin) : @[
-                                   @{kTitle:@"DevTool"},
-                                   @{kDesc:@"weex devtool"},
-                                   @{kIcon:@"doraemon_default"},
-                                   @{kPluginName:@"DoraemonWeexDevTooloPlugin"},
-                                   @{kAtModule:@"Weex"},
-                                   @{kBuriedPoint:@"dokit_sdk_weex_ck_devtool"}
-                                   ],
                            @(DoraemonManagerPluginType_DoraemonAppSettingPlugin) : @[
                                    @{kTitle:DoraemonLocalizedString(@"应用设置")},
                                    @{kDesc:DoraemonLocalizedString(@"应用设置")},
@@ -579,6 +522,15 @@ typedef void (^DoraemonPerformanceBlock)(NSDictionary *);
                                    @{kAtModule:DoraemonLocalizedString(@"常用工具")},
                                    @{kBuriedPoint:@"dokit_sdk_comm_ck_js"}
                            ],
+                           
+                           @(DoraemonManagerPluginType_DoraemonENVPlugin) : @[
+                                   @{kTitle:DoraemonLocalizedString(@"ENV")},
+                                   @{kDesc:DoraemonLocalizedString(@"ENV")},
+                                   @{kIcon:@"doraemon_mock"},
+                                   @{kPluginName:@"DoraemonENVPlugin"},
+                                   @{kAtModule:DoraemonLocalizedString(@"常用工具")},
+                                   @{kBuriedPoint:@"dokit_sdk_comm_ck_appinfo"}
+                                   ],
                            
                            // 性能检测
                            @(DoraemonManagerPluginType_DoraemonFPSPlugin) : @[
@@ -734,32 +686,7 @@ typedef void (^DoraemonPerformanceBlock)(NSDictionary *);
                                            @{kPluginName:@"DoraemonHierarchyPlugin"},
                                            @{kAtModule:DoraemonLocalizedString(@"视觉工具")},
                                            @{kBuriedPoint:@"dokit_sdk_ui_ck_widget_3d"}
-                                   ],
-                           // 平台工具
-                           @(DoraemonManagerPluginType_DoraemonMockPlugin) : @[
-                                @{kTitle:DoraemonLocalizedString(@"Mock数据")},
-                                   @{kDesc:DoraemonLocalizedString(@"Mock数据")},
-                                   @{kIcon:@"doraemon_mock"},
-                                   @{kPluginName:@"DoraemonMockPlugin"},
-                                   @{kAtModule:DoraemonLocalizedString(@"平台工具")},
-                                   @{kBuriedPoint:@"dokit_sdk_platform_ck_mock"}
-                                   ],
-                           @(DoraemonManagerPluginType_DoraemonHealthPlugin) : @[
-                               @{kTitle:DoraemonLocalizedString(@"健康体检")},
-                                  @{kDesc:DoraemonLocalizedString(@"健康体检中心")},
-                                  @{kIcon:@"doraemon_health"},
-                                  @{kPluginName:@"DoraemonHealthPlugin"},
-                                  @{kAtModule:DoraemonLocalizedString(@"平台工具")},
-                                  @{kBuriedPoint:@"dokit_sdk_platform_ck_health"}
-                                  ],
-                           @(DoraemonManagerPluginType_DoraemonFileSyncPlugin) : @[
-                                @{kTitle:DoraemonLocalizedString(@"文件同步")},
-                                    @{kDesc:DoraemonLocalizedString(@"文件同步")},
-                                    @{kIcon:@"doraemon_file_sync"},
-                                    @{kPluginName:@"DoraemonFileSyncPlugin"},
-                                    @{kAtModule:DoraemonLocalizedString(@"平台工具")},
-                                    @{kBuriedPoint:@"dokit_sdk_platform_ck_filesync"}
-                                    ]
+                                   ]
                            }[@(pluginType)];
     
     DoraemonManagerPluginTypeModel *model = [DoraemonManagerPluginTypeModel new];

@@ -53,8 +53,7 @@
 - (NSMutableDictionary *)basicInfoDic{
     if(nil == _basicInfoDic){
         _basicInfoDic = [NSMutableDictionary dictionary];
-        
-        [_basicInfoDic setValue:STRING_NOT_NULL([DoraemonManager shareInstance].pId) forKey:@"pId"];
+
         [_basicInfoDic setValue:@"iOS" forKey:@"platform"];
         [_basicInfoDic setValue:[DoraemonUtil currentTimeInterval] forKey:@"time"];
         [_basicInfoDic setValue:[DoraemonAppInfoUtil iphoneType] forKey:@"phoneModel"];
