@@ -19,6 +19,7 @@ typedef NS_ENUM(NSUInteger, DoraemonAPIEnv) {
     DoraemonAPIEnvNone = 0,
     DoraemonAPIEnvDevelopment,
     DoraemonAPIEnvTest,
+    DoraemonAPIEnvPreRelease,
     DoraemonAPIEnvProduction,
 };
 
@@ -26,6 +27,7 @@ typedef NS_ENUM(NSUInteger, DoraemonAPIEnv) {
 
 @property (nonatomic, strong) DoraemonCellButton *developmentBtn;
 @property (nonatomic, strong) DoraemonCellButton *testBtn;
+@property (nonatomic, strong) DoraemonCellButton *preReleaseBtn;
 @property (nonatomic, strong) DoraemonCellButton *productionBtn;
 
 @end
@@ -66,7 +68,16 @@ typedef NS_ENUM(NSUInteger, DoraemonAPIEnv) {
         [self.testBtn renderUIWithRightContent:@"✅"];
     }
     
-    self.productionBtn = [[DoraemonCellButton alloc] initWithFrame:CGRectMake(0, self.testBtn.doraemon_bottom, self.view.doraemon_width, kDoraemonSizeFrom750_Landscape(104))];
+    self.preReleaseBtn = [[DoraemonCellButton alloc] initWithFrame:CGRectMake(0, self.testBtn.doraemon_bottom, self.view.doraemon_width, kDoraemonSizeFrom750_Landscape(104))];
+    [self.preReleaseBtn renderUIWithTitle:DoraemonLocalizedString(@"预发环境")];
+    self.preReleaseBtn.delegate = self;
+    [self.preReleaseBtn needDownLine];
+    [self.view addSubview:self.preReleaseBtn];
+    if (env == DoraemonAPIEnvPreRelease) {
+        [self.preReleaseBtn renderUIWithRightContent:@"✅"];
+    }
+    
+    self.productionBtn = [[DoraemonCellButton alloc] initWithFrame:CGRectMake(0, self.preReleaseBtn.doraemon_bottom, self.view.doraemon_width, kDoraemonSizeFrom750_Landscape(104))];
     [self.productionBtn renderUIWithTitle:DoraemonLocalizedString(@"正式环境")];
     self.productionBtn.delegate = self;
     [self.productionBtn needDownLine];
@@ -86,6 +97,8 @@ typedef NS_ENUM(NSUInteger, DoraemonAPIEnv) {
         newEnv = DoraemonAPIEnvDevelopment;
     } else if (sender == self.testBtn) {
         newEnv = DoraemonAPIEnvTest;
+    } else if (sender == self.preReleaseBtn) {
+        newEnv = DoraemonAPIEnvPreRelease;
     } else {
         newEnv = DoraemonAPIEnvProduction;
     }
